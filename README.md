@@ -30,3 +30,7 @@ This project implements a simple group chat application using an ESP32 microcont
 3. Configure your WiFi credentials in the `ssid` and `password` variables.
 4. Upload the code to your ESP32 board.
 5. Access the chat interface by connecting to the ESP32's access point.
+
+## Screenshots:
+
+![WhatsApp Image 2024-04-16 at 4 02 23 PM](https://github.com/DaniduZe/ESP32-Group-Chat-Server/assets/110765521/458d716e-4288-4af9-890a-342d375c7289)
