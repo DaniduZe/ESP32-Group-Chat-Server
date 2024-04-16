@@ -1,0 +1,51 @@
+#include <WiFi.h>
+#include <WebServer.h>
+
+const char* ssid = "ESP32-Message-Point";
+const char* password = "";
+
+WebServer server(80);
+
+String chatMessages = "";
+
+void handleRoot() {
+  String html = "<!DOCTYPE html><html><head><title>ESP32 Group Chat</title><meta name='viewport' content='width=device-width, initial-scale=1'><style>body{font-family:Arial, sans-serif;margin:0;padding:0;}h1{color:#333;text-align:center;}form{margin-bottom:20px;text-align:center;}input[type='text'],input[type='submit']{padding:8px;margin-bottom:10px;border-radius:5px;border:1px solid #ccc;width:80%;box-sizing:border-box;}input[type='submit']{background-color:#4CAF50;color:white;border:none;cursor:pointer;}input[type='submit']:hover{background-color:#45a049;}.chat-history{border:1px solid #333;padding:10px;max-height:300px;overflow-y:auto;}.chat-message{margin-bottom:5px;}.sender-name{font-weight:bold;color:#007bff;}</style></head><body><h1>ESP32 Group Chat</h1><form action='/send' method='post'><label for='name'>Enter your name:</label><br><input type='text' name='name' id='name'><br><label for='message'>Message:</label><br><input type='text' name='message' id='message'><br><input type='submit' value='Send'></form><h2>Chat History</h2><div class='chat-history'>";
+  html += chatMessages;
+  html += "</div></body></html>";
+  server.send(200, "text/html", html);
+}
+
+void handleSendMessage() {
+  if (server.hasArg("name") && server.hasArg("message")) {
+    String name = server.arg("name");
+    String message = server.arg("message");
+    chatMessages += "<p><strong>" + name + ":</strong> " + message + "</p>";
+    server.sendHeader("Location", "/");
+    server.send(303);
+  } else {
+    server.send(400, "text/plain", "Bad Request");
+  }
+}
+
+void setup() {
+  Serial.begin(115200);
+
+  // Set up the access point
+  WiFi.softAP(ssid, password);
+  
+  IPAddress IP = WiFi.softAPIP();
+  Serial.print("AP IP address: ");
+  Serial.println(IP);
+
+  // Handle root URL
+  server.on("/", HTTP_GET, handleRoot);
+  server.on("/send", HTTP_POST, handleSendMessage);
+
+  // Start server
+  server.begin();
+  Serial.println("HTTP server started");
+}
+
+void loop() {
+  server.handleClient();
+}
